@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1635884293961.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "EA49FDBE",
+    "lastKnownWriteTime" : 1635886898,
+    "last_content_update" : 1635886898381,
+    "path" : "~/R/projetos/Carlix/Mark1.Rmd",
+    "project_path" : "Mark1.Rmd",
+    "properties" : {
+        "cursorPosition" : "193,0",
+        "scrollLine" : "169",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

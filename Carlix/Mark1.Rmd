@@ -1,0 +1,204 @@
+---
+title: "Carflix"
+author: "Alexandre"
+date: "02/11/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+rm(list = ls())
+
+
+
+
+# PACOTES
+#######
+# install.packages("hrbrthemes") 
+library("hrbrthemes")
+library("plotly")
+library("viridis")
+#library("Graphviz")
+library("dplyr")
+library("stringr")
+library("ggplot2")
+library("xlsx")
+library("factoextra")
+library("cluster")
+library("fpc")
+library("NbClust")
+library("clValid")
+library("clustertend")
+library("htmlwidgets")
+library("tidyverse")
+library("Hmisc")   #faz describe
+library("summarytools") # dfSummary 
+library("flexdashboard") 
+library("readxl")
+library("magrittr")
+
+
+format_real <- function(values, nsmall = 0) {
+  values %>%
+    as.numeric() %>%
+    format(nsmall = nsmall, decimal.mark = ",", big.mark = ".") %>%
+    str_trim() %>%
+    str_c("R$ ", .)
+}
+
+
+
+####### 
+
+
+
+#setwd("C:\Users\amart\Documents\R\projetos\Carlix")
+
+
+getwd()
+
+DF <- read_excel("Base.xlsx", sheet = "Anuncios mercado")
+
+
+
+###TRATATIVA DE DADOS###
+DF$ID<-0
+DF$COUNT <-1
+
+for(i in 1:nrow(DF)){
+  
+  DF$ID[i] = i
+  
+  print(i)
+}
+
+
+format_real(DF$Preco)
+
+DF2 <- filter(DF, AnoFabricacao >= 2010)
+
+######## ANÁLISE EXPLORATÓRIA #########
+
+#TODO O PERÍODO
+
+g <-ggplot(DF, aes(x=AnoFabricacao, y=Preco , color = as.factor(Cambio))) + 
+  geom_point(size = 1)+
+  #theme_ipsum_ps(axis.text.y = element_text(size=10, angle=45))+
+  scale_color_viridis(discrete = TRUE)+    scale_y_continuous(limits = quantile(DF$Preco, c(00, 0.95))) +geom_smooth(method='lm', formula= y~x)
+#geom_vline(xintercept = x, show.legend=TRUE)+
+#geom_hline(yintercept = y, show.legend=TRUE)
+
+
+#Podemos observar o comportamento de veículos semi automáticos, com tendencia de aumento acima dos demais
+
+#POS 2010
+
+f <-ggplot(DF2, aes(x=AnoFabricacao, y=Preco , color = as.factor(Cambio))) + 
+  geom_point(size = 1)+
+  #theme_ipsum_ps(axis.text.y = element_text(size=10, angle=45))+
+  scale_color_viridis(discrete = TRUE)+    scale_y_continuous(limits = quantile(DF2$Preco, c(00, 0.95))) +geom_smooth(method='lm', formula= y~x)
+#geom_vline(xintercept = x, show.legend=TRUE)+
+#geom_hline(yintercept = y, show.legend=TRUE)
+
+#O mesmo se repete quando olhamos somente dados mais recentes
+
+
+
+#INVESTIGAÇÃO DE TENDENCIA DE PREÇO POR TIPO DE CAMBIO COM ANÁLISE DE REGRESSÃO 
+##PLOTS
+
+DF3 <- filter(DF2, Cambio == "Manual"	)
+
+DF4 <- filter(DF2, Cambio != "Manual")
+
+
+h <-ggplot(DF2, aes(x=Quilometragem, y=Preco , color = as.factor(Cambio))) + 
+  geom_point(size = 1)+
+  #theme_ipsum_ps(axis.text.y = element_text(size=10, angle=45))+
+  scale_color_viridis(discrete = TRUE)+  scale_x_continuous(limits = quantile(DF2$Quilometragem, c(00, 0.95))) +
+  scale_y_continuous(limits = quantile(DF2$Preco, c(00, 0.95))) +geom_smooth(method='lm', formula= y~x)
+#geom_vline(xintercept = x, show.legend=TRUE)+
+#geom_hline(yintercept = y, show.legend=TRUE)
+
+h
+
+
+j <-ggplot(DF2, aes(x=CorPrimaria, y=Preco , color = as.factor(Cambio))) + 
+  geom_point(size = 1)+
+  #theme_ipsum_ps(axis.text.y = element_text(size=10, angle=45))+
+  scale_color_viridis(discrete = TRUE)+  
+  scale_y_continuous(limits = quantile(DF2$Preco, c(00, 0.95))) +geom_smooth(method='lm', formula= y~x)
+#geom_vline(xintercept = x, show.legend=TRUE)+
+#geom_hline(yintercept = y, show.legend=TRUE)
+
+j
+
+
+k <-ggplot(DF2, aes(x=AnoModelo, y=Preco , color = as.factor(Cambio))) + 
+  geom_point(size = 1)+
+  #theme_ipsum_ps(axis.text.y = element_text(size=10, angle=45))+
+  scale_color_viridis(discrete = TRUE)+    scale_y_continuous(limits = quantile(DF$Preco, c(00, 0.95))) +geom_smooth(method='lm', formula= y~x)
+#geom_vline(xintercept = x, show.legend=TRUE)+
+#geom_hline(yintercept = y, show.legend=TRUE)
+
+k
+
+```
+
+## Análise Exploratória de dados de preficicação de veículos
+
+Partimos de cerca de 40.000 entradas, a análise inicial contem algumas tratativas para facilitar análises futuras, o script por ser conferido no arquivo 'Script.R'
+
+Iniciaremos observando comportamento de preços oferecidos com base no ano de fabricação e tipo de cambio.
+
+
+## Preço por tipo de Cambio
+
+
+
+```{r cambiotot, echo=FALSE}
+g
+```
+
+Vale notar que o percentil final (ultimos 5%) foi desconsiderado para eliminar outliers.
+Podemos notar que a regressão para veículos Semi-Automáticos tem um corportamento de aumento mais acentuado que os demais tipos.
+
+
+### Observando dados a partir de 2010
+
+```{r cambio2010, echo=FALSE}
+f
+```
+
+O mesmo comportamento é observado para esse tipo de veículo, nos mostrando possibilidades de extrapolação visando a precificação deste tipo de veículo nos próximos ciclos.
+
+
+Comportamento similar é observado quando comparamos o Ano do Modelo do veículo, e não de fabricação.
+
+
+```{r cambiokm, echo=FALSE}
+k
+```
+
+
+Entretanto existem outros fatores que valem ser notados:
+
+
+```{r cambiopreco, echo=FALSE}
+h
+```
+
+
+Os valores de veículos semi-automáticos diminuem mais rapidamente que outras categorias quando comparamos o preço  pela Quilomtragem do veículo.
+
+
+Não surpreendemente, características como Cor Primária não nos trazem incialmente insights de precificação média, nem podemos associar regressões confiáveis observando essa característica somente.
+
+```{r cambiocor, echo=FALSE}
+j
+```
+
+Entretanto nos ajudam a ter dimensão do volume de veículos com cores não usuais em prospecção de vendas.
